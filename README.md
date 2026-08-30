@@ -7,6 +7,7 @@ Video and general vision tasks are explicitly out of scope for the core engine (
 - `docs/DESIGN.md` — literature review: test-time scaling, self-play preference optimization (SPIN-Diffusion, Diffusion-DPO, VideoDPO), reward modeling, known failure modes.
 - `docs/ARCHITECTURE.md` — the SGLang-shaped framework design: step-cache (RadixAttention analog), step-level continuous batching, a generation-program DSL, and RSI wired into the request lifecycle.
 - `docs/RESEARCH.md` — full raw reading list behind both docs above, with a suggested reading order.
+- `docs/STUDY_PLAN.md` — broader curriculum across five tracks: inference frameworks, RSI, diffusion, harness/eval/post-training, and GPU internals.
 
 ## Layout
 - `src/engine/` — scheduler, step-level continuous batching, paged latent memory, step-cache
