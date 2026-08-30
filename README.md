@@ -1,15 +1,21 @@
 # self-improving-diffusion
 
-Research + prototyping for self-improving inference systems around diffusion, vision, and video models: test-time scaling, self-play preference optimization, and distillation loops that compound quality over rounds.
+An inference framework for **image** diffusion models, structurally analogous to SGLang for LLMs — but where recursive self-improvement (RSI) is a scheduler-level concern built into the serving path, not a separate offline training pipeline.
 
-See `docs/DESIGN.md` for the literature review and system design.
+Video and general vision tasks are explicitly out of scope for the core engine (see `docs/ARCHITECTURE.md`).
+
+- `docs/DESIGN.md` — literature review: test-time scaling, self-play preference optimization (SPIN-Diffusion, Diffusion-DPO, VideoDPO), reward modeling, known failure modes.
+- `docs/ARCHITECTURE.md` — the SGLang-shaped framework design: step-cache (RadixAttention analog), step-level continuous batching, a generation-program DSL, and RSI wired into the request lifecycle.
 
 ## Layout
-- `docs/` — design notes, literature review
-- `src/verifiers/` — critic / reward models
-- `src/search/` — test-time scaling / localized refinement
-- `src/data/` — preference pair construction (self-play)
-- `src/training/` — DPO / RL fine-tuning loops
-- `src/eval/` — reward tracking, critic-human agreement checks
+- `src/engine/` — scheduler, step-level continuous batching, paged latent memory, step-cache
+- `src/runtime/` — denoiser backends (model forward passes)
+- `src/api/` — generation-program DSL (denoise → critic → refine → self-play-emit as one program)
+- `src/verifiers/` — critic / reward models (discriminator + region localization)
+- `src/rsi/` — self-improvement subsystem, called from the engine during serving
+  - `search/` — localized best-of-N / iterative refinement
+  - `data/` — self-play preference pair construction from served traffic
+  - `training/` — async DPO/self-play fine-tune + distillation, threshold-triggered
+- `src/eval/` — held-out reward tracking, critic-human agreement, cache/batching efficiency
 - `experiments/` — run configs and logs
 - `notebooks/` — exploratory analysis
