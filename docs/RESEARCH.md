@@ -66,3 +66,16 @@ Raw reading list behind `DESIGN.md` and `ARCHITECTURE.md`. Grouped by topic, rou
 4. The two failure-mode papers (§3) — know what breaks before you build the training loop.
 5. TeaCache/MagCache + Budget-Constrained Step-Level Diffusion Caching (§5) — understand the step-cache precedent.
 6. Everything else, as needed per component.
+
+## Things to actually think about, not just read
+
+Honest assessment, worth re-reading before sinking months into this:
+
+**Is this a genuinely good, hard problem?** Yes, with a caveat. The RadixAttention analog is harder than the original — token-prefix cache hits are exact, activation-similarity cache hits for diffusion are fuzzy, and a wrong cache hit produces visibly wrong pixels, not a retryable wrong token. Step-level continuous batching across variable resolutions/step-counts has no clean "sequence length" bucket to fall back on. And RSI-in-the-serving-path (vs. RSI as a bolted-on training script) is the least explored part of all of it — the failure modes are documented (§3) but not solved. The caveat: this is currently a **systems research problem**, not a product problem. Nobody is blocked waiting for it the way people were blocked on LLM throughput in 2023 — the case for why it matters has to come from you, not from an already-agreeing market. Be honest about which of those you're optimizing for.
+
+**Will building it actually teach RSI, diffusion, and inference — in equal measure? Probably not, by default.**
+- *Inference/systems*: yes, hardest and most directly — the scheduler, the cache eviction/correctness policy, and batching logic are where the real novel difficulty lives, so it's where the most growth happens almost automatically.
+- *Diffusion*: yes, but shallower than expected if you stay at the framework layer. You can build the whole `engine/` without ever wrestling with why diffusion models fail or how to improve sample quality — `runtime/` is deliberately a thin, swappable layer. Diffusion-modeling depth only comes from actually working in `verifiers/` and the training loop.
+- *RSI*: the weakest link. Self-play DPO + threshold-triggered retraining is one narrow instance of self-improvement — closer to "automated preference-data flywheel" than to the harder RSI questions (does the loop compound over many rounds without collapsing, what's the ceiling, how do you detect plateau vs. silent degradation). At small scale the loop will likely just work for a few rounds, and the genuinely interesting failure modes only show up if you push it hard and long — which is also the part most likely to get deferred because "the framework isn't ready yet."
+
+**The practical risk**: the engine/cache work is the most concrete, most satisfying-to-make-progress-on part of this project — and also the part least likely to teach you anything new about RSI specifically. If RSI is what you most care about, protect time for actually running the self-play loop for many rounds and staring at whether it's compounding, not just for building the thing that serves it.
