@@ -41,5 +41,7 @@ program = (
 )
 ```
 
-Run its contract tests with `python -m pytest` after installing the project in
-editable mode with its `dev` extra.
+Run its contract tests with `python -m pytest`. The local deterministic backend
+then provides a replayable `sample -> checkpoint -> score -> choose -> trace`
+execution path without downloading model weights; it is a control-plane test
+double, not an image generator.
