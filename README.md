@@ -6,6 +6,7 @@ Video and general vision tasks are explicitly out of scope for the core engine (
 
 - `docs/DESIGN.md` — literature review: test-time scaling, self-play preference optimization (SPIN-Diffusion, Diffusion-DPO, VideoDPO), reward modeling, known failure modes.
 - `docs/ARCHITECTURE.md` — the SGLang-shaped framework design: step-cache (RadixAttention analog), step-level continuous batching, a generation-program DSL, and RSI wired into the request lifecycle.
+- `docs/DESIGN_V2.md` — recommended next iteration: a quality-gated serving and learning fabric with exact trajectory checkpoints, consent-aware data capture, and shadow/canary promotion gates.
 - `docs/RESEARCH.md` — full raw reading list behind both docs above, with a suggested reading order.
 - `docs/STUDY_PLAN.md` — broader curriculum across five tracks: inference frameworks, RSI, diffusion, harness/eval/post-training, and GPU internals.
 
@@ -21,3 +22,24 @@ Video and general vision tasks are explicitly out of scope for the core engine (
 - `src/eval/` — held-out reward tracking, critic-human agreement, cache/batching efficiency
 - `experiments/` — run configs and logs
 - `notebooks/` — exploratory analysis
+
+## First executable slice
+
+The initial implementation deliberately starts with the control-plane contract,
+not a model dependency. It provides a typed and bounded generation program:
+
+```python
+from self_improving_diffusion import GenerationSpec, ModelRef, ProgramBuilder
+
+program = (
+    ProgramBuilder(GenerationSpec("a red cube", ModelRef("base", "r17"), seed=42))
+    .sample(checkpoint_at=(12,))
+    .score(ModelRef("critic", "r6"))
+    .choose()
+    .emit_trace()
+    .build()
+)
+```
+
+Run its contract tests with `python -m pytest` after installing the project in
+editable mode with its `dev` extra.
