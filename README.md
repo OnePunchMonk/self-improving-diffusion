@@ -50,3 +50,7 @@ Execution traces can be converted into an append-only local learning event only
 when `emit_trace(TrainingConsent.OPT_IN)` is declared. The default event holds
 provenance, aggregate verifier scores, and a prompt digest—not the raw prompt,
 pixels, or latent state.
+
+The v0 checkpoint store is explicitly request-scoped and TTL-bounded. It can
+resume an exact trajectory for a retry or later repair, but intentionally has
+no cross-request similarity lookup or silent live-state eviction.
