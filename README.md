@@ -45,3 +45,8 @@ Run its contract tests with `python -m pytest`. The local deterministic backend
 then provides a replayable `sample -> checkpoint -> score -> choose -> trace`
 execution path without downloading model weights; it is a control-plane test
 double, not an image generator.
+
+Execution traces can be converted into an append-only local learning event only
+when `emit_trace(TrainingConsent.OPT_IN)` is declared. The default event holds
+provenance, aggregate verifier scores, and a prompt digest—not the raw prompt,
+pixels, or latent state.

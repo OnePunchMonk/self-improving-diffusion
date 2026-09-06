@@ -51,3 +51,15 @@ def test_program_rejects_total_step_budget_exhaustion() -> None:
 def test_generation_spec_requires_latent_aligned_dimensions() -> None:
     with pytest.raises(ValueError, match="divisible by 8"):
         GenerationSpec("test", ModelRef("base", "r17"), 1, width=1025)
+
+
+def test_program_rejects_sampling_after_scoring() -> None:
+    with pytest.raises(ValueError, match="all samples before score"):
+        (
+            ProgramBuilder(spec(), Budget(max_samples=2, max_total_steps=48))
+            .sample()
+            .score(ModelRef("critic", "r6"))
+            .sample()
+            .emit_trace()
+            .build()
+        )

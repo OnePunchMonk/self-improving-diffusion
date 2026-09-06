@@ -99,9 +99,36 @@ class ProgramBuilder:
             raise ValueError("program would exceed max_total_steps")
         if not any(node.kind is NodeKind.EMIT_TRACE for node in self._nodes):
             raise ValueError("a program must explicitly emit a trace")
+        self._validate_execution_order()
         return GenerationProgram(
             spec=self._spec,
             budget=self._budget,
             nodes=tuple(self._nodes),
             consent=self._consent,
         )
+
+    def _validate_execution_order(self) -> None:
+        """Reject valid-looking programs that would be semantically ambiguous."""
+
+        saw_sample = False
+        saw_score = False
+        saw_choose = False
+        for index, node in enumerate(self._nodes):
+            if node.kind is NodeKind.SAMPLE:
+                if saw_score:
+                    raise ValueError("v0 requires all samples before score")
+                saw_sample = True
+            elif node.kind is NodeKind.SCORE:
+                if not saw_sample:
+                    raise ValueError("score requires a preceding sample")
+                if saw_score:
+                    raise ValueError("v0 permits one scoring stage")
+                saw_score = True
+            elif node.kind is NodeKind.CHOOSE:
+                if not saw_score:
+                    raise ValueError("choose requires a preceding score")
+                if saw_choose:
+                    raise ValueError("v0 permits one selection stage")
+                saw_choose = True
+            elif node.kind is NodeKind.EMIT_TRACE and index != len(self._nodes) - 1:
+                raise ValueError("emit_trace must terminate a program")
