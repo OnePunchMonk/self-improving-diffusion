@@ -54,3 +54,8 @@ pixels, or latent state.
 The v0 checkpoint store is explicitly request-scoped and TTL-bounded. It can
 resume an exact trajectory for a retry or later repair, but intentionally has
 no cross-request similarity lookup or silent live-state eviction.
+
+`StepBatchScheduler` is the current step-level batching primitive. It accepts
+only dependency-ready nodes, batches identical immutable denoiser shapes and
+operation kinds, and rotates between compatibility classes so one workload
+cannot starve another.
