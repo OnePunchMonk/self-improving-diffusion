@@ -149,3 +149,20 @@ policies are checked to preserve every request's identity end to end.
 Findings -- chunk scheduling's near-zero queue delay vs static batching's
 batch-fill wait, and why goodput doesn't yet diverge between them at this
 model's speed: `docs/learning/jx-05-dynamic-serving.md`.
+
+## JX-06: budgeted adaptive inference
+
+Compares `single_sample`, `more_steps`, `best_of_n`, and a bounded
+accept/refine `adaptive` policy at the same total step budget, on a
+held-out seed set disjoint from JX-02's tuning seeds:
+
+```
+python -m self_improving_diffusion.eval.adaptive_cli --out reports/jx06_adaptive_inference.json
+```
+
+Every sample actually executed is charged to cost, including ones a policy
+discards. Findings, including a published rejection condition (the
+`adaptive` policy's refine branch was never exercised at the chosen
+threshold on this held-out set, so this run says nothing about whether
+refinement helps) rather than a hidden gap:
+`docs/learning/jx-06-adaptive-inference.md`.
