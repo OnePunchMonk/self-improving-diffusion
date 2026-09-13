@@ -59,3 +59,23 @@ no cross-request similarity lookup or silent live-state eviction.
 only dependency-ready nodes, batches identical immutable denoiser shapes and
 operation kinds, and rotates between compatibility classes so one workload
 cannot starve another.
+
+## JX-01: a real JAX generation path
+
+`src/self_improving_diffusion/jax_backend/` implements the same
+`DenoiserBackend`/`VerifierBackend` protocols above with actual JAX math
+instead of digest-derived fixtures: a tiny MLP epsilon-predictor, a
+linear-beta DDPM sampler, and exact checkpoint/resume of real trajectory
+state. See `docs/architecture/jax-runtime.md` for what's real, what's
+deliberately still a stand-in, and why `pyproject.toml` now requires
+Python >= 3.11.
+
+Install it with `pip install -e ".[dev,jax]"`, then run:
+
+```
+python -m self_improving_diffusion.jax_backend.cli --prompt "a red square" --seed 0 --steps 24 --out-dir runs/jx01
+```
+
+This writes `runs/jx01/image.png` and `runs/jx01/manifest.json` (execution
+trace, compile-vs-warm timings, and an explicit bit-for-bit
+checkpoint/resume equivalence check).

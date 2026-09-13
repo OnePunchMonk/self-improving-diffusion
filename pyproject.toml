@@ -6,10 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "self-improving-diffusion"
 version = "0.1.0"
 description = "Quality-gated execution primitives for image diffusion programs"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+jax = ["jax>=0.4.30", "jaxlib>=0.4.30", "numpy>=1.26", "pillow>=10.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
