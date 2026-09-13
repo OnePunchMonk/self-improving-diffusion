@@ -10,6 +10,7 @@ Video and general vision tasks are explicitly out of scope for the core engine (
 - `docs/RESEARCH.md` — full raw reading list behind both docs above, with a suggested reading order.
 - `docs/STUDY_PLAN.md` — broader curriculum across five tracks: inference frameworks, RSI, diffusion, harness/eval/post-training, and GPU internals.
 - `docs/architecture/diagrams.md` — three mermaid diagrams: the inference system (JX-01/02/04/05), the self-improving loop (JX-06/07), and the total design mapped against the charter's own layer table, with explicit gaps marked rather than hidden.
+- `docs/architecture/checkpoint-ownership.md` — logical/physical checkpoint handles, refcounting, and copy-on-write forking, borrowed from LLM KV-cache ownership discipline without committing to a paged allocator.
 
 ## Layout
 - `src/engine/` — scheduler, step-level continuous batching, paged latent memory, step-cache
@@ -184,3 +185,12 @@ A real training loop over model parameters is explicitly out of scope here
 -- scoped down on purpose rather than under-delivered silently. Findings,
 including the honest "no compute break-even" cost conclusion:
 `docs/learning/jx-07-bounded-self-improvement.md`.
+
+## Checkpoint ownership (from the serving-ideas backlog)
+
+`CheckpointOwnershipRegistry` (`jax_backend/ownership.py`) gives real
+`TrajectoryState` checkpoints logical/physical handles, reference counts,
+and copy-on-write forking -- content-addressed by the real state digest, so
+identical content from independent branches deduplicates for free and
+`reclaim()` refuses to free storage any branch still references. Design
+rationale (and why this isn't PagedAttention): `docs/architecture/checkpoint-ownership.md`.
