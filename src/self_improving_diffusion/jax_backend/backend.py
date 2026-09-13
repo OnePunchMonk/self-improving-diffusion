@@ -20,6 +20,7 @@ from ..program import GenerationProgram
 from .model import ModelParams, TinyEpsilonModel
 from .sampler import ddpm_step, make_schedule
 from .state import TrajectoryState, save_checkpoint
+from .text_encoder import encode_prompt
 
 
 class JaxDenoiserBackend:
@@ -41,11 +42,12 @@ class JaxDenoiserBackend:
         schedule = make_schedule(spec.steps)
         base_key = jax.random.fold_in(jax.random.PRNGKey(spec.seed), sample_index)
         init_latents = jax.random.normal(base_key, (1, TinyEpsilonModel.latent_dim))
+        cond = encode_prompt(spec.prompt)
 
         history: Dict[int, np.ndarray] = {spec.steps - 1: np.asarray(init_latents)}
         latents = init_latents
         for step in range(spec.steps - 1, -1, -1):
-            latents = ddpm_step(self._params, schedule, latents, step, base_key)
+            latents = ddpm_step(self._params, schedule, latents, step, base_key, cond)
             history[step - 1] = np.asarray(latents)
 
         final_latents = history[-1]
@@ -89,9 +91,11 @@ class JaxVerifierBackend:
     def score(self, sample: SampleArtifact, verifier_revision: str) -> ScoreReport:
         latents = jnp.asarray(self._denoiser.final_latents(sample.sample_id))
         # Tiny, real proxy metrics: lower spatial variance reads as smoother
-        # (higher "quality") and closeness to zero mean reads as "alignment"
-        # in the absence of real text conditioning. These are placeholders for
-        # an actual verifier model, not digest-derived fixtures.
+        # (higher "quality") and closeness to zero mean reads as "alignment".
+        # These do not yet compare the decoded latent against the real text
+        # conditioning embedding now available (backend.py encodes spec.prompt),
+        # so "alignment" here is still a placeholder for an actual verifier
+        # model, not digest-derived fixtures.
         quality = float(1.0 / (1.0 + jnp.var(latents)))
         alignment = float(1.0 / (1.0 + jnp.abs(jnp.mean(latents))))
         uncertainty = float(jnp.std(latents))

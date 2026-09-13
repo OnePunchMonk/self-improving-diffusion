@@ -24,7 +24,9 @@ from ..executor import ProgramExecutor
 from ..program import ProgramBuilder
 from ..types import Budget, GenerationSpec, ModelRef
 from .backend import JaxDenoiserBackend, JaxVerifierBackend
+from .model import TinyEpsilonModel
 from .sampler import make_schedule, run_trajectory
+from .text_encoder import encode_prompt
 
 
 def _decode_to_image(latents: np.ndarray, scale: int = 16) -> Image.Image:
@@ -37,16 +39,19 @@ def _decode_to_image(latents: np.ndarray, scale: int = 16) -> Image.Image:
 
 
 def _verify_exact_resume(backend: JaxDenoiserBackend, spec: GenerationSpec, sample_index: int, resume_step: int) -> bool:
-    """Prove checkpoint/resume equals an uninterrupted run, bit-for-bit."""
+    """Prove checkpoint/resume equals an uninterrupted run, bit-for-bit -- with real conditioning."""
 
     schedule = make_schedule(spec.steps)
     base_key = jax.random.fold_in(jax.random.PRNGKey(spec.seed), sample_index)
-    init_latents = jax.random.normal(base_key, (1, backend.params().w1.shape[0] - 1))
+    init_latents = jax.random.normal(base_key, (1, TinyEpsilonModel.latent_dim))
+    cond = encode_prompt(spec.prompt)
 
-    full_run = run_trajectory(backend.params(), schedule, init_latents, base_key, spec.steps - 1, -1)
+    full_run = run_trajectory(backend.params(), schedule, init_latents, base_key, spec.steps - 1, -1, cond)
 
-    to_checkpoint = run_trajectory(backend.params(), schedule, init_latents, base_key, spec.steps - 1, resume_step)
-    resumed = run_trajectory(backend.params(), schedule, to_checkpoint, base_key, resume_step, -1)
+    to_checkpoint = run_trajectory(
+        backend.params(), schedule, init_latents, base_key, spec.steps - 1, resume_step, cond
+    )
+    resumed = run_trajectory(backend.params(), schedule, to_checkpoint, base_key, resume_step, -1, cond)
 
     return bool(np.array_equal(np.asarray(full_run), np.asarray(resumed)))
 

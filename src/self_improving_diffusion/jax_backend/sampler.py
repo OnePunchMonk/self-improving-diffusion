@@ -38,15 +38,21 @@ def ddpm_step(
     latents: jnp.ndarray,
     step: int,
     base_key: jax.Array,
+    cond: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
-    """Reverse-process update from ``step`` to ``step - 1`` (step 0 is clean)."""
+    """Reverse-process update from ``step`` to ``step - 1`` (step 0 is clean).
+
+    ``cond`` is the text-conditioning embedding for this trajectory (see
+    ``text_encoder.py``); omitting it uses the null/unconditioned embedding,
+    matching every call site that predates real text conditioning.
+    """
 
     beta_t = schedule.betas[step]
     alpha_t = schedule.alphas[step]
     alpha_bar_t = schedule.alphas_cumprod[step]
 
     t_batch = jnp.full((latents.shape[0],), step)
-    eps_pred = TinyEpsilonModel.apply(params, latents, t_batch)
+    eps_pred = TinyEpsilonModel.apply(params, latents, t_batch, cond)
 
     mean = (latents - (beta_t / jnp.sqrt(1.0 - alpha_bar_t)) * eps_pred) / jnp.sqrt(alpha_t)
 
@@ -66,17 +72,20 @@ def run_trajectory(
     base_key: jax.Array,
     start_step: int,
     end_step: int = -1,
+    cond: jnp.ndarray | None = None,
 ) -> jnp.ndarray:
     """Run the reverse process from ``start_step`` down to ``end_step`` (exclusive).
 
     Steps count down: ``start_step`` is the noisiest state being consumed,
     ``end_step`` (default ``-1``, i.e. fully denoised) is where iteration stops.
     Resuming from a checkpoint means calling this with the checkpointed
-    ``latents`` and ``start_step`` equal to the checkpointed step.
+    ``latents`` and ``start_step`` equal to the checkpointed step, and the
+    same ``cond`` the original trajectory used -- conditioning is part of
+    the trajectory's identity, exactly like ``base_key``.
     """
 
     def body(carry, step):
-        return ddpm_step(params, schedule, carry, step, base_key), None
+        return ddpm_step(params, schedule, carry, step, base_key, cond), None
 
     steps = jnp.arange(start_step, end_step, -1)
     final_latents, _ = jax.lax.scan(body, latents, steps)

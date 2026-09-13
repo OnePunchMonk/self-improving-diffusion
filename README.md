@@ -62,6 +62,17 @@ only dependency-ready nodes, batches identical immutable denoiser shapes and
 operation kinds, and rotates between compatibility classes so one workload
 cannot starve another.
 
+## Real text conditioning
+
+`jax_backend/text_encoder.py` gives the model a genuine (if architecturally
+minimal) text-conditioning path: deterministic hash tokenization, an
+embedding table, mean pooling, fed into every denoising step via an
+optional `cond` parameter (default: the null/unconditioned embedding, so
+every pre-existing call site keeps working unchanged). Different prompts
+now produce genuinely different generations at the same seed. Design,
+what's real vs. still a placeholder, and why weight-init dimensions
+changed as a side effect: `docs/architecture/text-conditioning.md`.
+
 ## JX-01: a real JAX generation path
 
 `src/self_improving_diffusion/jax_backend/` implements the same
