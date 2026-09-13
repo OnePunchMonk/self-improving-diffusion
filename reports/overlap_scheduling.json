@@ -1,0 +1,77 @@
+{
+  "note": "simulated_host_prep_ms is a labeled time.sleep() stand-in for real host-side preprocessing (e.g. a text encoder); TinyEpsilonModel's actual device compute has no such step today. This measures the overlap *mechanism* via JAX's real asynchronous dispatch, not a claim about this model's true preprocessing cost.",
+  "results": [
+    {
+      "simulated_host_prep_ms": 0.0,
+      "serialized": {
+        "policy": "serialized",
+        "num_batches": 20,
+        "simulated_host_prep_s": 0.0,
+        "total_wall_time_s": 0.1864672499941662,
+        "mean_wall_time_per_batch_s": 0.00932336249970831
+      },
+      "overlapped": {
+        "policy": "overlapped",
+        "num_batches": 20,
+        "simulated_host_prep_s": 0.0,
+        "total_wall_time_s": 0.07520379200286698,
+        "mean_wall_time_per_batch_s": 0.003760189600143349
+      },
+      "speedup": 2.4794926562620345
+    },
+    {
+      "simulated_host_prep_ms": 1.0,
+      "serialized": {
+        "policy": "serialized",
+        "num_batches": 20,
+        "simulated_host_prep_s": 0.001,
+        "total_wall_time_s": 0.10183899999537971,
+        "mean_wall_time_per_batch_s": 0.005091949999768986
+      },
+      "overlapped": {
+        "policy": "overlapped",
+        "num_batches": 20,
+        "simulated_host_prep_s": 0.001,
+        "total_wall_time_s": 0.10167904201080091,
+        "mean_wall_time_per_batch_s": 0.005083952100540046
+      },
+      "speedup": 1.001573165732244
+    },
+    {
+      "simulated_host_prep_ms": 5.0,
+      "serialized": {
+        "policy": "serialized",
+        "num_batches": 20,
+        "simulated_host_prep_s": 0.005,
+        "total_wall_time_s": 0.20366349999676459,
+        "mean_wall_time_per_batch_s": 0.01018317499983823
+      },
+      "overlapped": {
+        "policy": "overlapped",
+        "num_batches": 20,
+        "simulated_host_prep_s": 0.005,
+        "total_wall_time_s": 0.21519595800782554,
+        "mean_wall_time_per_batch_s": 0.010759797900391277
+      },
+      "speedup": 0.9464095045379914
+    },
+    {
+      "simulated_host_prep_ms": 20.0,
+      "serialized": {
+        "policy": "serialized",
+        "num_batches": 20,
+        "simulated_host_prep_s": 0.02,
+        "total_wall_time_s": 0.5936068339942722,
+        "mean_wall_time_per_batch_s": 0.02968034169971361
+      },
+      "overlapped": {
+        "policy": "overlapped",
+        "num_batches": 20,
+        "simulated_host_prep_s": 0.02,
+        "total_wall_time_s": 0.5974055000115186,
+        "mean_wall_time_per_batch_s": 0.02987027500057593
+      },
+      "speedup": 0.9936413943005661
+    }
+  ]
+}

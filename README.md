@@ -194,3 +194,19 @@ and copy-on-write forking -- content-addressed by the real state digest, so
 identical content from independent branches deduplicates for free and
 `reclaim()` refuses to free storage any branch still references. Design
 rationale (and why this isn't PagedAttention): `docs/architecture/checkpoint-ownership.md`.
+
+## Overlap scheduling (from the serving-ideas backlog)
+
+`jax_backend/overlap.py` compares serialized vs. overlapped host/device
+execution using JAX's real asynchronous dispatch (not blocking between
+batches). Run it with a labeled synthetic host-prep cost:
+
+```
+python -m self_improving_diffusion.jax_backend.overlap_cli --out reports/overlap_scheduling.json
+```
+
+Honest finding: overlap only helps at zero simulated prep cost (2.48x, from
+fewer synchronization points), and disappears once simulated prep exceeds
+this tiny model's sub-millisecond device compute -- there's nothing left for
+overlap to hide the host work behind. Consistent with JX-03's
+model-too-small pattern, not a mechanism failure: `docs/architecture/overlap-scheduling.md`.
