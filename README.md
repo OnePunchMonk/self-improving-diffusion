@@ -96,3 +96,22 @@ runs the frozen quality/compute protocol (`eval/quality_compute.py`, fixed
 seeds and step budgets, declared once so results stay comparable across
 code changes) and reports the mean-quality-per-step-budget frontier.
 Findings from the current CPU baseline: `docs/learning/jx-02-baseline.md`.
+
+## JX-03: GPU internals through measured kernels
+
+`benchmarks/modal/jx03_gpu_internals.py` runs the JX-02 baseline plus two
+kernel exercises (elementwise fusion, tiled GEMM with a NumPy correctness
+oracle) on a cheap Modal T4:
+
+```
+pip install modal && modal setup   # once, to authenticate
+modal run benchmarks/modal/jx03_gpu_internals.py
+```
+
+Raw output: `reports/jx03_gpu_internals.json`. Findings, including a kept
+negative result (the tiny JX-01 model is ~11x *slower* on this GPU than on
+CPU -- launch overhead dominates at this model size) and a real
+hardware-capability boundary (T4 has no bf16 tensor cores, so bf16 GEMM
+doesn't beat fp32 here): `docs/learning/jx-03-gpu-internals.md`. Nsight
+Compute kernel-level profiling was not available in this container; that
+gap is called out rather than papered over.

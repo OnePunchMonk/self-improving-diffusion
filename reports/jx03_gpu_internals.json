@@ -1,0 +1,39 @@
+{
+  "devices": ["cuda:0"],
+  "nvidia_smi": "Tesla T4, 15360 MiB, 580.95.05",
+  "jx02_tiny_model_gpu": {
+    "cold": {
+      "config": {"dtype": "float32", "resolution": 8, "batch_size": 1, "steps": 24, "cache_state": "cold"},
+      "timings_seconds": {"compile_s": 0.5897011389999998, "dispatch_s": 0.0017703550000005563, "execute_s": 0.00040177900000060163, "transfer_s": 0.00044078699999960946, "decode_s": 0.00013122000000009848, "verify_s": 0.3887114089999999},
+      "total_seconds": 0.9811566890000005,
+      "peak_rss_bytes": 4488921088,
+      "device": "cuda:0"
+    },
+    "warm": {
+      "config": {"dtype": "float32", "resolution": 8, "batch_size": 1, "steps": 24, "cache_state": "warm"},
+      "timings_seconds": {"compile_s": 0.0, "dispatch_s": 0.00026116100000095344, "execute_s": 0.0004282030000002379, "transfer_s": 0.00027538400000004515, "decode_s": 7.71749999994853e-05, "verify_s": 0.0022463570000006428},
+      "total_seconds": 0.0032882800000013646,
+      "peak_rss_bytes": 4488921088,
+      "device": "cuda:0"
+    }
+  },
+  "cpu_baseline_for_comparison": {
+    "note": "from docs/learning/jx-02-baseline.md, same model/config, CPU (cpu:0)",
+    "cold_total_seconds": 0.13352516500162892,
+    "warm_total_seconds": 0.0002873749763239175
+  },
+  "elementwise_fusion": {
+    "n_elements": 16777216,
+    "fused_s": 0.0005548047499999598,
+    "unfused_s": 0.0005561640999999895,
+    "speedup": 1.002450141243437,
+    "fused_achieved_gbps": 241.91885163205563,
+    "unfused_achieved_gbps": 241.32756501184193
+  },
+  "tiled_gemm": [
+    {"size": 1024, "dtype": "float32", "elapsed_s": 0.0008531145999999268, "achieved_tflops": 2.5172276362404116, "max_rel_err_vs_numpy_fp32": 5.467908295031521e-07, "arithmetic_intensity_flops_per_byte": 170.66666666666666},
+    {"size": 4096, "dtype": "float32", "elapsed_s": 0.028149729799999967, "achieved_tflops": 4.882425318057588, "max_rel_err_vs_numpy_fp32": 2.7686890007316833e-06, "arithmetic_intensity_flops_per_byte": 682.6666666666666},
+    {"size": 4096, "dtype": "bfloat16", "elapsed_s": 0.028123018500000006, "achieved_tflops": 4.8870626555254, "max_rel_err_vs_numpy_fp32": 0.0029175751842558384, "arithmetic_intensity_flops_per_byte": 1365.3333333333333}
+  ],
+  "ncu_profiler_evidence": "not captured: this container lacks the privileged perf-counter access Nsight Compute needs; wall-clock + roofline arithmetic used instead."
+}
