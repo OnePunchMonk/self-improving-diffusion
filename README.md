@@ -9,6 +9,7 @@ Video and general vision tasks are explicitly out of scope for the core engine (
 - `docs/DESIGN_V2.md` — recommended next iteration: a quality-gated serving and learning fabric with exact trajectory checkpoints, consent-aware data capture, and shadow/canary promotion gates.
 - `docs/RESEARCH.md` — full raw reading list behind both docs above, with a suggested reading order.
 - `docs/STUDY_PLAN.md` — broader curriculum across five tracks: inference frameworks, RSI, diffusion, harness/eval/post-training, and GPU internals.
+- `docs/architecture/diagrams.md` — three mermaid diagrams: the inference system (JX-01/02/04/05), the self-improving loop (JX-06/07), and the total design mapped against the charter's own layer table, with explicit gaps marked rather than hidden.
 
 ## Layout
 - `src/engine/` — scheduler, step-level continuous batching, paged latent memory, step-cache
