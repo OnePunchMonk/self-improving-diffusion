@@ -1,0 +1,39 @@
+{
+  "arrival_process": {
+    "distribution": "poisson",
+    "rate_per_s": 15.0,
+    "num_requests": 30
+  },
+  "static_batching": {
+    "policy": "static_batching",
+    "num_requests": 30,
+    "latency_percentiles": {
+      "p50_s": 0.06314249551096769,
+      "p95_s": 0.2124197293236681,
+      "p99_s": 0.5060225880293595
+    },
+    "mean_queue_delay_s": 0.09079042051238106,
+    "throughput_rps": 12.910336067564275,
+    "goodput_fraction_within_sla": 1.0,
+    "sla_s": 1.0,
+    "compiled_variants": 2,
+    "cache_hits": 6,
+    "cache_misses": 2
+  },
+  "chunk_scheduling": {
+    "policy": "chunk_scheduling",
+    "num_requests": 30,
+    "latency_percentiles": {
+      "p50_s": 0.0001580634925630875,
+      "p95_s": 0.00017980260236072354,
+      "p99_s": 0.00019526012701224227
+    },
+    "mean_queue_delay_s": 9.56432092687661e-07,
+    "throughput_rps": 12.910178421049684,
+    "goodput_fraction_within_sla": 1.0,
+    "sla_s": 1.0,
+    "compiled_variants": 1,
+    "cache_hits": 118,
+    "cache_misses": 1
+  }
+}

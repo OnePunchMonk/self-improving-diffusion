@@ -131,3 +131,21 @@ key is derived from `(seed, request_id, sample_index)` only, never from rank
 or device assignment) and sweeps collective (`psum`) latency by message
 size. Findings, including what's not yet covered (real multi-host, rank
 failure): `docs/learning/jx-04-distributed-correctness.md`.
+
+## JX-05: dynamic distributed serving
+
+Compares static batching against chunk-level continuous batching under the
+same declared (Poisson) arrival process and the same *real, measured*
+per-chunk compute time (an actually-compiled, actually-timed JAX chunk, not
+a synthetic cost model):
+
+```
+python -m self_improving_diffusion.jax_backend.serving_cli --out reports/jx05_serving.json
+```
+
+Also enforces a bounded compiled-variant cache (`CompiledVariantCache`) that
+raises rather than silently recompiling past its bound, and both scheduling
+policies are checked to preserve every request's identity end to end.
+Findings -- chunk scheduling's near-zero queue delay vs static batching's
+batch-fill wait, and why goodput doesn't yet diverge between them at this
+model's speed: `docs/learning/jx-05-dynamic-serving.md`.
