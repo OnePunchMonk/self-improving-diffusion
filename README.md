@@ -166,3 +166,20 @@ discards. Findings, including a published rejection condition (the
 threshold on this held-out set, so this run says nothing about whether
 refinement helps) rather than a hidden gap:
 `docs/learning/jx-06-adaptive-inference.md`.
+
+## JX-07: bounded self-improvement (inference-policy scope)
+
+Freezes model parameters and the execution policy; updates only the
+inference policy (JX-06's best-of-N split), via offline logged feedback
+with proper off-policy (IPS) estimation, a frozen-baseline promotion gate,
+and rollback, across multiple update cycles with three disjoint seed
+ranges (behavior-log / selection / final):
+
+```
+python -m self_improving_diffusion.rsi.cli --cycles 2 --out reports/jx07_self_improvement.json
+```
+
+A real training loop over model parameters is explicitly out of scope here
+-- scoped down on purpose rather than under-delivered silently. Findings,
+including the honest "no compute break-even" cost conclusion:
+`docs/learning/jx-07-bounded-self-improvement.md`.
