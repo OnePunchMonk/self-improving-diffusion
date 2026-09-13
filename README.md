@@ -115,3 +115,19 @@ hardware-capability boundary (T4 has no bf16 tensor cores, so bf16 GEMM
 doesn't beat fp32 here): `docs/learning/jx-03-gpu-internals.md`. Nsight
 Compute kernel-level profiling was not available in this container; that
 gap is called out rather than papered over.
+
+## JX-04: distributed correctness before hybrid optimization
+
+Request/data parallelism only (no intra-request sharding yet -- the tiny
+model doesn't warrant it). Needs >= 2 devices, simulated on CPU via:
+
+```
+XLA_FLAGS=--xla_force_host_platform_device_count=4 \
+    python -m self_improving_diffusion.jax_backend.distributed_cli --out reports/jx04_distributed.json
+```
+
+Proves device count/placement never changes the result (every sample's RNG
+key is derived from `(seed, request_id, sample_index)` only, never from rank
+or device assignment) and sweeps collective (`psum`) latency by message
+size. Findings, including what's not yet covered (real multi-host, rank
+failure): `docs/learning/jx-04-distributed-correctness.md`.

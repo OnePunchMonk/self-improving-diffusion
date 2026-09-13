@@ -1,0 +1,38 @@
+{
+  "num_devices_available": 4,
+  "data_parallel_run": {
+    "num_devices_available": 4,
+    "num_devices_used": 4,
+    "num_samples": 6,
+    "wall_time_s": 0.1334654579986818,
+    "sample_ids": [
+      "sample_jx04-evidence_0",
+      "sample_jx04-evidence_1",
+      "sample_jx04-evidence_2",
+      "sample_jx04-evidence_3",
+      "sample_jx04-evidence_4",
+      "sample_jx04-evidence_5"
+    ],
+    "matches_single_device": true
+  },
+  "collective_latency_by_message_size": [
+    {
+      "message_bytes_per_device": 4096,
+      "num_devices": 4,
+      "elapsed_s": 9.839169943006709e-05,
+      "achieved_gbps": 0.1665181117401585
+    },
+    {
+      "message_bytes_per_device": 262144,
+      "num_devices": 4,
+      "elapsed_s": 0.00013636249932460486,
+      "achieved_gbps": 7.689621451598004
+    },
+    {
+      "message_bytes_per_device": 4194304,
+      "num_devices": 4,
+      "elapsed_s": 0.0006592374993488193,
+      "achieved_gbps": 25.449426066587804
+    }
+  ]
+}
