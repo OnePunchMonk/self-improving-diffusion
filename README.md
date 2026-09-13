@@ -79,3 +79,20 @@ python -m self_improving_diffusion.jax_backend.cli --prompt "a red square" --see
 This writes `runs/jx01/image.png` and `runs/jx01/manifest.json` (execution
 trace, compile-vs-warm timings, and an explicit bit-for-bit
 checkpoint/resume equivalence check).
+
+## JX-02: a trustworthy single-device baseline
+
+```
+python -m self_improving_diffusion.jax_backend.benchmark_cli --out reports/jx02_baseline.json
+python -m self_improving_diffusion.eval.cli --out reports/jx02_quality_compute.json
+```
+
+The first command separates compile, dispatch, execute, transfer, decode,
+and verify time (each synchronized before it's recorded), reports a
+cold-vs-warm comparison and peak host RSS, and cross-checks the JAX result
+against `jax_backend/numpy_reference.py` -- an eager, unrolled, pure-NumPy
+reimplementation sharing the same weights/schedule/RNG draws. The second
+runs the frozen quality/compute protocol (`eval/quality_compute.py`, fixed
+seeds and step budgets, declared once so results stay comparable across
+code changes) and reports the mean-quality-per-step-budget frontier.
+Findings from the current CPU baseline: `docs/learning/jx-02-baseline.md`.
